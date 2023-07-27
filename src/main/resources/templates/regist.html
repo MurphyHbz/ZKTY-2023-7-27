@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>regist</title>
+  <style scoped>
+    #background{
+      width: 100%;
+      height: 100%;
+      background: url("/images/blue.webp");
+      background-size:100% 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+    #contain{
+      width: 580px;
+      height: 600px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+      background:#00000090;
+      text-align: center;
+      border-radius: 20px;
+    }
+    #contain h1{
+      color: white;
+    }
+    .form{
+      color: white;
+      margin-left: 20%;
+      margin-top: 60px;
+      font-size: 20px;
+      text-align: left;
+    }
+    label{
+      float:left;
+      width: 5em;
+      margin-right: 1em;
+      text-align: right;
+    }
+    input,textarea{
+      margin-left: 10px;
+      padding: 4px;
+      border: solid 1px #4e5ef3;
+      outline: 0;
+      font: normal 13px/100% Verdana,Tahoma,sans-serif;
+      width: 200px;
+      height: 20px;
+      background:#f1f1f190;
+      box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 8px;
+    }
+    input:hover,textarea:hover,input:focus,textarea:focus{border-color:#0d0aa1;}
+    button{
+      position: relative;
+      height: 33px;
+      width: 150px;
+      background: rgba(35, 19, 252, 0.425);
+      border-radius: 10px;
+      margin-top: 38px;
+      box-shadow: none;
+      color: white;
+      margin-left: 40px;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <template>
+    <div id="background">
+      <div id="contain">
+        <h1>Register</h1>
+        <div class="form">
+          <label>用户名：</label><input type="text" v-model.trim="name"><br/>
+        </div>
+        <div class="form">
+          <label>账号：</label><input type="text" v-model.trim="username"><br/>
+        </div>
+        <div class="form">
+          <label>密码：</label><input type="password" v-model.trim="password"><br/>
+        </div>
+        <div class="form">
+          <label>确认密码：</label><input type="password" v-model.trim="password2"><br/>
+        </div>
+        <div class="form">
+          <label>邮箱：</label><input type="email" v-model.trim="mail"><br/>
+        </div>
+        <button @click.prevent="handlefinish">提交</button>
+      </div>
+    </div>
+  </template>
+
+</div>
+</body>
+<script src="/js/vue.js"></script>
+<script src="/element-ui/lib/index.js"></script>
+<link rel="stylesheet" href="/element-ui/lib/theme-chalk/index.css">
+<script src="/js/axios-0.18.0.js"></script>
+
+<script>
+
+  new Vue({
+    el:"#app",
+    name:'register',
+    props: {
+      msg: String
+    },
+    data(){
+      return{
+        name:"",
+        username:"",
+        password:"",
+        password2:"",
+        mail:""
+      };
+    },methods:{
+      //点击完成按钮触发handlefinish
+      handlefinish:function()
+      {
+        if(this.name==='')
+        {
+          alert("用户名不能为空");
+        }
+        else if(this.username==='')
+        {
+          alert("账号不能为空");
+        }
+        else if(this.password==='')
+        {
+          alert("密码不能为空");
+        }
+        else if(this.password2==='')
+        {
+          alert("密码不能为空");
+        }
+        else if(this.password2!=this.password)
+        {
+          alert("密码输入不一致");
+        }
+        else if(this.mail==='' )
+        {
+          alert("邮箱不能为空");
+        }else if(!/^\w+([-\.]\w+)*@\w+([\.-]\w+)*\.\w{2,4}$/.test(this.mail))
+        {
+          alert("邮箱格式不正确!");
+        }
+        else{
+          axios({
+            method: 'POST',
+            url: 'regist',
+            data: {
+              name:this.name,
+              username: this.username,
+              password: this.password,
+              email:this.mail
+            },
+          }).then(function (res){
+            console.log(res.data)
+            if (res.data=="success"){
+              alert("注册成功");
+              window.location='login.html';//完成注册后跳转至登录页面
+            }else if (res.data=="error"){
+              alert("账号重复，请重新填写")
+            }
+          })
+
+        }
+      }
+    }
+
+  })
+</script>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .el-table .warning-row {
+            background: oldlace;
+        }
+
+        .el-table .success-row {
+            background: #f0f9eb;
+        }
+    </style>
+
+</head>
+<body>
+<div id="app">
+
+    <!--搜索表单-->
+    <el-form :inline="true" :model="select" class="demo-form-inline">
+
+        <el-form-item label="用户账号">
+            <el-input v-model="select.userAccount" placeholder="用户账号"></el-input>
+        </el-form-item>
+        <br>
+        <el-form-item label="下单时间">
+            <el-col :span="11">
+                <el-date-picker type="datetime" placeholder="选择日期" v-model="select.minordertime" style="width: 100%;"></el-date-picker>
+            </el-col>
+            <el-col class="line" :span="2">——</el-col>
+            <el-col :span="11">
+                <el-date-picker type="datetime" placeholder="选择日期" v-model="select.maxordertime" style="width: 100%;"></el-date-picker>
+            </el-col>
+        </el-form-item>
+        <el-form-item label="订单金额">
+            <el-col :span="11">
+                <el-input  v-model="select.minorderAmount" style="width: 100%;"></el-input>
+            </el-col>
+            <el-col class="line" :span="2">——</el-col>
+            <el-col :span="11">
+                <el-input  v-model="select.maxorderAmount" style="width: 100%;"></el-input>
+            </el-col>
+        </el-form-item>
+
+        <el-form-item>
+            <el-button type="primary" @click="onSubmit">查询</el-button>
+        </el-form-item>
+    </el-form>
+    <!--表格-->
+    <template>
+        <el-table
+                :data="tableData"
+                style="width: 100%"
+                :row-class-name="tableRowClassName"
+                @selection-change="handleSelectionChange">
+
+            <el-table-column
+                    type="index"
+                    width="50">
+            </el-table-column>
+
+            <el-table-column
+                    prop="userId"
+                    label="用户ID"
+                    align="center"
+            >
+            </el-table-column>
+            <el-table-column
+                    prop="userAccount"
+                    label="用户账号"
+                    align="center"
+            >
+            </el-table-column>
+            <el-table-column
+                    prop="userName"
+                    align="center"
+                    label="用户名">
+            </el-table-column>
+            <el-table-column
+                    prop="email"
+                    align="center"
+                    label="用户邮箱">
+            </el-table-column>
+            <el-table-column
+                    prop="orderId"
+                    align="center"
+                    label="订单编号">
+            </el-table-column>
+            <el-table-column
+                    prop="orderTime"
+                    align="center"
+                    label="下单时间">
+            </el-table-column>
+            <el-table-column
+                    prop="orderAmount"
+                    align="center"
+                    label="订单金额">
+            </el-table-column>
+
+            <el-table-column
+                    align="center"
+                    label="用户操作">
+
+                <el-row slot-scope="scope">
+                    <el-button type="primary">修改</el-button>
+                    <el-button type="danger">删除</el-button>
+                </el-row>
+
+            </el-table-column>
+
+        </el-table>
+    </template>
+
+    <!--分页工具条-->
+    <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage"
+            :page-sizes="[5, 10, 15, 20]"
+            :page-size="5"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="3">
+    </el-pagination>
+
+</div>
+
+
+<script src="/js/vue.js"></script>
+<script src="/element-ui/lib/index.js"></script>
+<link rel="stylesheet" href="/element-ui/lib/theme-chalk/index.css">
+<script src="/js/axios-0.18.0.js"></script>
+
+<script>
+    new Vue({
+        el: "#app",
+        mounted(){
+            this.selectAll();
+        },
+        methods: {
+
+            // 查询所有数据
+            selectAll(){
+                var _this = this;
+
+                axios({
+                    method:"post",
+                    url:"selectAll"
+                }).then(function (resp) {
+                    _this.tableData = resp.data;
+                })
+            },
+            //删除数据
+
+            tableRowClassName({row, rowIndex}) {
+                if (rowIndex === 1) {
+                    return 'warning-row';
+                } else if (rowIndex === 3) {
+                    return 'success-row';
+                }
+                return '';
+            },
+            // 复选框选中后执行的方法
+            handleSelectionChange(val) {
+                this.multipleSelection = val;
+
+                console.log(this.multipleSelection)
+            },
+            // 查询方法
+            onSubmit() {
+                var _this = this;
+                axios({
+                    method:"post",
+                    url:"selectByAccTimeAmount",
+                    data:this.select
+                }).then(function (resp) {
+                    _this.tableData = resp.data;
+                })
+            },
+
+
+            //分页
+            handleSizeChange(val) {
+                console.log(`每页 ${val} 条`);
+            },
+            handleCurrentChange(val) {
+                console.log(`当前页: ${val}`);
+            }
+
+        },
+        data() {
+            return {
+                // 当前页码
+                currentPage: 4,
+                // 添加数据对话框是否展示的标记
+                dialogVisible: false,
+
+                // 品牌模型数据
+                order: {
+                    userId: "",
+                    userAccount: '',
+                    username: '',
+                    email: '',
+                    orderId:"",
+                    orderTime:"",
+                    orderAmount: ""
+
+
+                },
+                select:{
+                    userAccount:"",
+                    minordertime:"",
+                    maxordertime:"",
+
+                    maxorderAmount: "",
+                    minorderAmount: ""
+                },
+                // 复选框选中数据集合
+                multipleSelection: [],
+                // 表格数据
+                tableData: []
+            }
+        }
+    })
+
+</script>
+
+</body>
+</html>

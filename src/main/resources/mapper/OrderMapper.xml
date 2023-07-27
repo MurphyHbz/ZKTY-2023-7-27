@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mys.zkty.dao.OrderDao">
+    <resultMap id="userAndorder" type="userAndOrder">
+        <id property="userId" column="userId"></id>
+        <result property="userAccount" column="userAccount"></result>
+        <result property="userName" column="userName"></result>
+        <result property="email" column="email"></result>
+        <result property="orderId" column="orderId"></result>
+        <result property="orderTime" column="orderTime"></result>
+        <result property="orderAmount" column="orderAmount"></result>
+    </resultMap>
+
+    <select id="selectAll" resultMap="userAndorder">
+        SELECT user.user_id userId,user_account userAccount,user_name userName,email,order_id orderId,order_time orderTime,order_amount orderAmount
+        FROM `user` INNER JOIN `order` ON `user`.`user_id`=`order`.`user_id`
+        <where>
+            <if test="userAccount!='' and userAccount!=null">
+                user_account=userAccount
+            </if>
+        </where>
+    </select>
+
+    <select id="selectByAccTimeAmount" resultMap="userAndorder" resultType="selectOrder">
+        SELECT user.user_id userId,user_account userAccount,user_name userName,email,order_id orderId,order_time orderTime,order_amount orderAmount
+        FROM `user` INNER JOIN `order` ON `user`.`user_id`=`order`.`user_id`
+        <where>
+            <if test="userAccount!='' and userAccount!=null">
+                user_account=#{userAccount}
+            </if>
+            <if test="minordertime!=null and maxordertime!=null">
+               and order_time between #{minordertime} and #{maxordertime}
+            </if>
+            <if test="minorderAmount!=0.0 and maxorderAmount!=0.0">
+               and  order_amount between #{minorderAmount} and #{maxorderAmount}
+            </if>
+        </where>
+    </select>
+</mapper>
